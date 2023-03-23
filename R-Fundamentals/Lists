@@ -1,0 +1,60 @@
+# Introduction to R: Data Frames
+# 3/15/2023
+
+# Data frame: Dataset of potentially different data types, with variables as
+# columns and observations as rows.
+
+# R has many built-in data frames, such as mtcars
+mtcars <- mtcars
+
+# The head() function shows the first few observations in a data frame, and the
+# tail() functions shows the last few
+head(mtcars)
+tail(mtcars)
+
+# The function str() shows the structure of a data frame, and returns the total
+# number of observations and variables, and a list of variable names, data 
+# types, and first observations
+str(mtcars)
+
+# Use the data.frame() function to create a data frame. Construct a data frame
+# that describes main characteristics of the planets in the solar system.
+name <- c("Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus",
+          "Nepture")
+type <- c("Terrestrial planet", "Terrestrial planet", "Terrestrial planet",
+          "Terrestrial planet", "Gas giant", "Gas giant", "Gas giant", 
+          "Gas giant")
+diameter <- c(0.382, 0.949, 1, 0.532, 11.209, 9.449, 4.007, 3.883)
+rotation <- c(58.64, -243.02, 1, 1.03, 0.41, 0.43, -0.72, 0.67)
+rings <- c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE)
+# Combine the above vectors into the planets_df data frame
+planets_df <- data.frame(name, type, diameter, rotation, rings)
+str(planets_df)
+
+# Select elements from a data frame with square brackets [] and index slicing
+# Select the diameter of Mercury from planets_df
+planets_df[1,3]
+# Select all data for Mars
+planets_df[4,]
+# Data can also be selected from a column using the variable name
+# Print the first 5 values of the diameter column
+planets_df[1:5, "diameter"]
+# Columns can also be selected using $ shortcut
+# Select the rings variable from planets_df and assign it to a new vector
+rings_vector <- planets_df$rings
+# Use this vector to select all columns from planets_df for planets with rings
+planets_df[rings_vector,]
+# The subset() function can be used as a shortcut to the same result
+subset(planets_df, subset = rings)
+# Use subset() to select all planets with diameter less than 1 (that of Earth)
+subset(planets_df, subset = diameter < 1)
+
+# The order() function gives the ranked position of each element when applied to
+# a variable
+a <- c(100, 10, 1000)
+order(a)
+# The output of order() can be used to reshuffle the original vector
+a <- a[order(a)]
+# Use order() to rearranage planets_df based on planet size; just print results
+positions <- order(planets_df$diameter)
+planets_df[positions, ]
