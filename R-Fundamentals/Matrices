@@ -1,0 +1,69 @@
+# Introduction to R: Matrices
+# 3/4/2023
+
+# Matrix: A two-dimensional collection of elements of the same data type,
+# arranged into a fixed numbers of rows and columns. Assigned with matrix()
+matrix_1 <- matrix(1:9, byrow = TRUE, nrow = 3)
+
+# Matrix analysis: Vectors define box office for first Star Wars movies
+# Values: US box office, Non-US box office
+new_hope <- c(460.998, 314.4)
+empire_strikes <- c(290.475, 247.900)
+return_jedi <- c(309.306, 165.8)
+# Create box_office vector
+box_office <- c(new_hope, empire_strikes, return_jedi)
+# Construct star_wars_matrix
+star_wars_matrix <- matrix(box_office, byrow = TRUE, nrow = 3)
+
+# Add names to the rows or columns of a matrix using rownames() and colnames()
+region <- c("US", "Non-US")
+titles <- c("A New Hope", "The Empire Strikes Back", "Return of the Jedi")
+# Name the colums with region and the rows with titles
+colnames(star_wars_matrix) <- region
+rownames(star_wars_matrix) <- titles
+# Print out star_wars_matrix
+star_wars_matrix
+
+# Find the total for each row in a matrix with the rowSums() function, which
+# creates a new vector
+worldwide_revenue <- rowSums(star_wars_matrix)
+worldwide_revenue
+
+# Add one or more columns to a matrix with the cbind() function
+star_wars_worldwide <- cbind(star_wars_matrix, worldwide_revenue)
+
+# Create a matrix star_wars_matrix2 with box office info for prequel trilogy
+menace <- c(474.5, 552.5)
+clones <- c(310.7, 338.7)
+revenge <- c(380.3, 468.5)
+box_office2 <- c(menace, clones, revenge)
+star_wars_matrix2 <- matrix(box_office2, byrow = TRUE, nrow = 3)
+titles2 <- c("The Phantom Menace", "Attack of the Clones", 
+             "Revenge of the Sith")
+colnames(star_wars_matrix2) <- region
+rownames(star_wars_matrix2) <- titles2
+star_wars_matrix2
+
+# Use rbind() to past together star_wars_matrix and star_wars_matrix2
+all_wars_matrix <- rbind(star_wars_matrix, star_wars_matrix2)
+all_wars_matrix
+
+# Find the total revenue for the series by region using the colSums() function
+total_revenue_vector <- colSums(all_wars_matrix)
+total_revenue_vector
+
+# Selecting matrix elements can be done with [] brackets, with a comma to 
+# separate rows from columns
+
+# Select non-US revenue for all movies and calculate the mean()
+non_us_all <- all_wars_matrix[,2]
+mean(non_us_all)
+# Find the US revenue for the first and sixth movies and the mean
+us_first_last <- all_wars_matrix[c(1, 6), 1]
+mean(us_first_last)
+
+# PEMDAS operations work element-wise on matrices in R
+# Using price of a ticket for all movies was $5, calculate number of visitors
+visitors <- all_wars_matrix / 5
+visitors
+# 
