@@ -16,9 +16,9 @@ geom_sample <- rgeom(100000, .2)
 
 # Machine has a 10% to break down every day. How long is it expected to last?
 # Use pgeom() to find probability the machine breaks on the 5th day or earlier
-pgeom(4, .1) # 0.468559
+pgeom(4, .1) # 0.40951
 # Use pgeom() to find probability machine is unbroken after 20 days
-1 - pgeom(19, .1) # 0.109419
+1 - pgeom(19, .1) # 0.1215767
 # Calculate probability the machine is still working on days 1 - 30
 still_working <- 1 - pgeom(0:29, .1)
 # Plot a graph of these probabilities
