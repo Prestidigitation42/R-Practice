@@ -11,6 +11,8 @@ poisson_sample <- rpois(100000, 2)
 mean(poisson_sample == 0)
 # Calculate exact probability using dpois()
 dpois(0, 2) # 0.1353353
+# Create a histogram of the sample
+hist(poisson_sample)
 # Adding two Poisson distributions together results in another Poisson dist.
 X <- rpois(100000, 1)
 Y <- rpois(100000, 2)
