@@ -1,5 +1,5 @@
-# Foundations of Probability
-# 3/4/2023
+# Foundations of Probability - Binomial Distribution
+# 3/23/2023
 
 # Binomial Distribution
 # rbinom(a = sample size, b = flips per sample, c = probability of heads)
