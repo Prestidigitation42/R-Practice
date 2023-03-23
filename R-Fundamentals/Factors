@@ -1,0 +1,44 @@
+# Introduction to R: Factors
+# 3/12/2023
+
+# Factor: Statistical data type used to store categorical variables
+# Create factors in R with factor() function
+# sex_vector has two factor levels: "Male" and "Female"
+sex_vector <- c("Male", "Female", "Female", "Male", "Male")
+factor_sex_vector <- factor(sex_vector)
+factor_sex_vector
+
+# Two types of categorical variables: Nominal and ordinal
+# Nominal: Categorical variable w/o implied order
+animals_vector <- c("Elephant", "Giraffe", "Donkey", "Horse")
+factor_animals_vector <- factor(animals_vector)
+factor_animals_vector
+# Ordinal: Categorical variables with a natural ordering
+temp_vector <- c("High", "Low", "High", "Low", "Medium")
+factor_temp_vector <- factor(temp_vector, order = TRUE, 
+                             levels = c("Low", "Medium", "High"))
+factor_temp_vector
+
+# Factor levels: Change names of levels with the levels() function
+survey_vector <- c("M", "F", "F", "M", "M")
+factor_survey_vector <- factor(survey_vector)
+# Update the levels of factor_survey_vector to "Female" and "Male"
+levels(factor_survey_vector) <- c("Female", "Male")
+
+# Use the summary() function to get a quick look at contents of a variable
+summary(survey_vector)
+summary(factor_survey_vector)
+
+# By default R returns NA when trying to compare values in a factor
+male <- factor_survey_vector[1]
+female <- factor_survey_vector[2]
+male > female # NA, warning message
+
+# Ordered factors revisited (work speed of five data analysts)
+speed_vector <- c("medium", "slow", "slow", "medium", "fast")
+factor_speed_vector <- factor(speed_vector, ordered = TRUE, 
+                              levels = c("slow", "medium", "fast"))
+# Compare the speeds of analysts 2 and 5
+da2 <- factor_speed_vector[2]
+da5 <- factor_speed_vector[5]
+da2 > da5 # FALSE
