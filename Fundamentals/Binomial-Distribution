@@ -1,0 +1,128 @@
+# Foundations of Probability
+# 3/4/2023
+
+# Binomial Distribution
+# rbinom(a = sample size, b = flips per sample, c = probability of heads)
+rbinom(10, 10, 0.1)
+
+# Density and Cumulative Density
+hundred_k_flips <- rbinom(100000, 10, .5)
+# Density: Probability that the result of a given sample is x
+# Approximate density for x = 5
+mean(hundred_k_flips == 5) 
+# Calculate exact probability density in R using dbinom(a = outcome where 
+# density is being estimate, b = number of coins, c = probability of heads)
+dbinom(5, 10, .5) # 0.2460938
+# Cumulative density: Probability the result is less than or equal to x
+# Approximate cumulative density for x <= 4
+mean(hundred_k_flips <= 4) 
+# Calculate exact cdf with pbinom(a = Highest value included in cdf, b, c)
+pbinom(4, 10 , 0.5) # 0.3769531
+
+# Flip 10 coins weighted so that there is a 30% chance of heads. What is the 
+# probability exactly 2 are heads?
+# Approximate using rbinom to create a simulation of 10,000 trials
+mean(rbinom(10000, 10, .3) == 2)
+# Calculate the exact probability density using dbinom()
+dbinom(2, 10, 0.3) # 0.2334744
+# What is the probability at least 5 coins are heads?
+# Approximate using rbinom to again simulate 10,000 trials
+mean(rbinom(10000, 10, .3) >= 5)
+# Calculate the exact probability using pbinom
+1 - pbinom(4, 10, .3) # 0.1502683
+
+# Expected Value and Variance
+# Estimate expected value by taking the mean of a binomial distribution
+mean(hundred_k_flips) # 5.01089
+# Exact value is s = sample size * p = probability of heads
+10 * .5
+# Find an estimate variance using the var() function
+var(hundred_k_flips) # 2.509951
+# Exact variance is s * p * (1 - p)
+
+# Probability of Event A and Event B
+# Event A: Coin can be heads or tails with probability x_A
+# Event B: Coin can be heads or tails with probability x_B
+# Probability A & B (if A and B are independent): x_A * x_B
+# Simulate two coins
+A <- rbinom(100000, 1, .5) # x_A = .5
+B <- rbinom(100000, 1, .5) # x_B = .5
+mean(A & B) # x_A * x_B = .25
+
+# Probability of Event A or Event B
+# Probability A | B (if A and B are independent): x_A + x_B - x_A * x_B
+mean(A | B) # x_A + x_B - x_A * x_B = .75
+
+# Use rbinom to simulate 100,000 draws from X (10 flips, .6 chance heads) and 
+# Y (10 flips, .7 chance heads)
+X <- rbinom(100000, 10, .6)
+Y <- rbinom(100000, 10, .7)
+# Estimate the probability that either X or Y is <= 4
+mean(X <= 4 | Y <= 4)
+# Use pbinom to calculate the probabilities separately
+prob_X_less <- pbinom(4, 10, .6)
+prob_Y_less <- pbinom(4, 10, .7)
+# Combine these to calculate the exact probability either <= 4
+prob_X_less + prob_Y_less - prob_X_less * prob_Y_less # 0.2057164
+
+# Multiplying Random Variables
+Z = 3 * X # n = 3
+# The expected value is multiplied by n
+mean(Z)
+# The variance is multiplied by n^2
+
+# Updating From Evidence
+# Simulate 50,000 draws from a set of fair coins (heads 50%) and a set of biased
+# coins (heads 75%). Flip 20 coins each draw. If 11 heads results, what is the
+# probability that the coins flipped were fair?
+fair <- rbinom(50000, 20, .5)
+biased <- rbinom(50000, 20, .75)
+# How many cases led to exactly 11 heads for the fair and biased coins?
+fair_11 <- sum(fair == 11)
+biased_11 <- sum(biased == 11)
+# Find the posterior probability that the coins were fair and not biased
+# P(fair|11 heads) = P(fair 11 heads) / P((fair 11 heads) + P(biased 11 heads))
+fair_11 / (fair_11 + biased_11) # ~ 0.860
+# Perform the same calculation in the case that 16 heads resulted from the flips
+fair_16 <- sum(fair == 16)
+biased_16 <- sum(biased == 16)
+# Find the estimated probability that the coin flipped is biased
+biased_16 / (fair_16 + biased_16)
+# Use Bayes Theorem to calculate the exact probability the coin is fair
+prob_fair_11 <- dbinom(11, 20, .5)
+prob_biased_11 <- dbinom(11, 20, .75)
+prob_fair_11 / (prob_fair_11 + prob_biased_11) # 0.8554755
+
+# Simulate draws from a pile of 10,000 coins of which 8,000 are fair and 2,000
+# are biased (heads 75%)
+fair_flips <- rbinom(8000, 20, .5)
+biased_flips <- rbinom(2000, 20, .75)
+# How many cases led to exactly 14 heads for the fair and biased coins?
+fair_14 <- sum(fair_flips == 14)
+biased_14 <- sum(biased_flips == 14)
+# Estimate the posterior probability that the coin is fair given 14 heads
+fair_14 / (fair_14 + biased_14) 
+# Use Bayes Theorem to calculate the exact probability the coin is fair
+prob_fair_14 <- dbinom(14, 20, .5)
+prob_biased_14 <- dbinom(14, 20, .75)
+prob_fair_14 / (prob_fair_14 + prob_biased_14) # 0.179811
+
+# Now suppose there are three possible outcomes from a coin drawn from a pile of
+# 100,000: 80% coin is fair (heads 50%), 10% biased low (heads 25%), 10% biased
+# high (heads 75%). 
+three_flips_fair <- rbinom(80000, 20, .5)
+three_flips_high <- rbinom(10000, 20, .75)
+three_flips_low <- rbinom(10000, 20, .25)
+# Compute the cases where exactly 13 heads resulted for each coin.
+fair_13 <- sum(three_flips_fair == 13)
+high_13 <- sum(three_flips_high == 13)
+low_13 <- sum(three_flips_low == 13)
+# Find the probability that the coin was fair
+fair_13 / (fair_13 + high_13 + low_13) 
+# Use Bayes Theorem to calculate the exact probability the coin is fair
+prob_fair_13 <- dbinom(13, 20, .5)
+prob_high_13 <- dbinom(13, 20, .75)
+prob_low_13 <- dbinom(13, 20, .25)
+.8 * prob_fair_13 / (.8 * prob_fair_13 
+                     + .1 * prob_high_13 
+                     + .1 * prob_low_13) # 0.8401111
