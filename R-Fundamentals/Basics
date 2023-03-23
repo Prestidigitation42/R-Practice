@@ -1,0 +1,29 @@
+# Introduction to R: Basics
+# 3/2/2023
+
+# Basic PEMDAS and modulo
+3 + 4 # 7
+6 + 12 + 19 * 2 # 56
+(4 / 2 + 5 ^ 2) %% 3 # 0
+
+# Variable assignment
+x <- 42
+y <- x ^ 3 / 17 # 4358.117...
+z <- (y - x * 11 + x * y) %% 25 # 12.05882...
+hello <- "Hello, it's me..."
+
+# Cannot perform PEMDAS operations on character variables
+error <- x + hello
+error2 <- hello * x
+
+# Basic data types in R
+a <- 42.5 # Decimal values are called numerics
+b <- 5 # Whole numbers are called integers, and are also numerics
+c <- FALSE # Boolean values (TRUE or FALSE) are called logical
+d <- "Character" # Text (string) values are called characters
+
+# Use the class() function to check the data type of a variable
+class(a) # "numeric"
+class(b) # "numeric"
+class(c) # "logical"
+class(d) # "character"
