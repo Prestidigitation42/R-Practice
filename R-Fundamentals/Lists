@@ -1,0 +1,11 @@
+# Introduction to R: Lists
+# 3/12/2023
+
+# Create lists in R using the list() function. Lists can contain elements of
+# several data types (unlike vectors, which must have a single data type)
+my_vector <- 1:10
+my_matrix <- matrix(1:9, ncol = 3)
+my_df <- mtcars[1:10,]
+my_list <- list(my_vector, my_matrix, my_df)
+# Lists can be assigned names in a similar fashion to vectors
+names(my_list) <- c("vec", "mat", "df")
