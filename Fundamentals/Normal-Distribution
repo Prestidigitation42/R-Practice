@@ -1,0 +1,21 @@
+# Foundations of Probability - Normal Distribution
+# 3/23/2023
+
+# Normal Distribution
+# Large samples from the binomial distribution approximate Normal distribution
+binom_sample <- rbinom(100000, 1000, .2)
+# Generate draws from the Normal distribution using function rnorm(a = sample
+# size, b = expected value, c = standard deviation)
+normal_sample <- rnorm(100000, 1000 * .2, sqrt(1000 * .2 * (1 - .2)))
+# Compare the two distributions by create a histogram for each
+hist(binom_sample)
+hist(normal_sample)
+# Flip 1,000 biased coins (heads 20%). What is the probability that 190 or fewer
+# heads result?
+# Estimate probability using the samples generated from the distributions
+mean(binom_sample <= 190)
+mean(normal_sample <= 190)
+# Calculate the probability of 190 heads or fewer using pbinom
+pbinom(190, 1000, .2) # 0.2273564
+# Calculate the probabilty of 190 heads or fewer using pnorm
+pnorm(190, 200, sqrt(160)) # 0.2145977
