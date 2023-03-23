@@ -1,0 +1,18 @@
+# Foundations of Probability - Poisson Distribution
+# 3/23/2023
+
+# Poisson Distribution
+# Binomial distribution approximates Poisson distribution when the chance of 
+# heads is very low
+binom_sample_pois <- rbinom(100000, 1000, .002)
+poisson_sample <- rpois(100000, 2)
+# What is the probability that the result of a draw is 0 heads?
+# Estimate using the sample taken above
+mean(poisson_sample == 0)
+# Calculate exact probability using dpois()
+dpois(0, 2) # 0.1353353
+# Adding two Poisson distributions together results in another Poisson dist.
+X <- rpois(100000, 1)
+Y <- rpois(100000, 2)
+Z <- X + Y
+Z
