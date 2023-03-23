@@ -1,0 +1,15 @@
+# Foundations of Probability - Geometric Distribution
+# 3/23/2023
+
+# Geometric Distribution
+# Simulate 100 flips of a single coin (heads 20%)
+flips <- rbinom(100, 1, .2)
+# Use the which() function to find the first case of heads
+which(flips == 1) [1]
+# Use replicate() function to simulate 100,000 trials waiting for first heads
+replications <- replicate(100000, which(rbinom(100, 1, .2) == 1) [1])
+# Plot a histogram of the results in replications
+hist(replications)
+# Use rgeom() function to simulate 100,000 draws from geometric distribution
+# with probability .2
+geom_sample <- rgeom(100000, .2)
