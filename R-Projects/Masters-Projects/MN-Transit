@@ -1,0 +1,86 @@
+# https://api.census.gov/data/key_signup.html
+# https://walker-data.com/tidycensus/articles/spatial-data.html
+# https://api.census.gov/data/2015/acs/acs5/variables.html
+
+library(tidycensus)
+library(tidyverse)
+
+census_api_key("ad128c909237aa03ace4020c248c0a462f1f90ea")
+
+# vars <- c(est = "B05002_017E",
+#           tot = "B05002_01e#)
+
+# Orange: Example framework for API searches
+# orange <- get_acs(
+#   state = "WI",
+#   county = "Dane",
+#   geography = "tract",
+#   # "B05002_003E": Estimate!!Total!!Native!!Born in state of residence
+#   variables = "B05002_003E",
+#   geometry = TRUE,
+#   year = 2020
+# )
+# 
+# head(orange)
+# 
+# orange %>%
+#   ggplot(aes(fill = estimate)) + 
+#   geom_sf(color = NA) +
+#   scale_fill_viridis_c() + theme_bw()
+# 
+# # Yellow: First search on travel time to work
+# yellow <- get_acs(
+#   state = "MN",
+#   county = "Hennepin",
+#   geography = "tract",
+#   # B08134_070E: Estimate!!Total!!Public transportation (excluding taxicab)!!
+#   # 60 or more minutes
+#   variables = "B08134_070E",
+#   geometry = TRUE,
+#   year = 2020
+# )
+# 
+# head(yellow)
+# 
+# yellow %>%
+#   ggplot(aes(fill = estimate)) + 
+#   geom_sf(color = NA) +
+#   scale_fill_viridis_c() + theme_bw()
+
+# Travel time to work by county, greater than 60 minutes by car
+hour_plus_car <- get_acs(
+  state = "MN",
+  geography = "tract",
+  # B08134_020E: Estimate!!Total!!Car, truck, or van!!60 or more minutes
+  variables = "B08134_020E",
+  geometry = TRUE,
+  year = 2020
+)
+
+head(hour_plus_car)
+
+hour_plus_car %>%
+  ggplot(aes(fill = estimate)) + 
+  ggtitle("Car Transit Travel 1 Hour+") +
+  geom_sf(color = NA) +
+  scale_fill_viridis_c() + theme_bw()
+
+# Travel time to work by county, greater than 60 minutes using public transit
+hour_plus_public <- get_acs(
+  state = "MN",
+  geography = "tract",
+  # B08134_070E: Estimate!!Total!!Public transportation (excluding taxicab)!!
+  # 60 or more minutes
+  variables = "B08134_070E",
+  geometry = TRUE,
+  year = 2020
+)
+
+head(hour_plus_public)
+
+hour_plus_public %>%
+  ggplot(aes(fill = estimate)) + 
+  ggtitle("Public Transit Travel 1 Hour+") +
+  theme(plot.title=element_text(hjust=0.5)) +
+  geom_sf(color = NA) +
+  scale_fill_viridis_c() + theme_bw()
