@@ -1,0 +1,61 @@
+# R for Data Science
+# 3/24/23
+# References material from: https://r4ds.had.co.nz/tibbles.html
+
+library(tidyverse)
+
+# Turn an R data.frame into a tibble using as_tibble()
+iris <- as_tibble(iris)
+
+# Create a new tibble from individual vectors with tibble()
+tb_10_1 <- tibble(
+  x = 1:5,
+  y = 1,
+  z = x ^2 + y
+)
+
+# Unusual variable names need to be surrounded with backticks '`'
+tb_10_2 <- tibble(
+  `:)` = "smile",
+  ` ` = "space",
+  `2000` = "number"
+)
+
+# Tibbles can also be created with tribble() (transposed tibble)
+tb_10_3 <- tribble(
+  ~x, ~y, ~z,
+  #--|--|----
+  "a", 2, 3.6,
+  "b", 1, 8.5
+)
+
+# Tibbles have a refined printing method
+tb_10_4 <- tibble(
+  a = lubridate::now() + runif(1e3) * 86400,
+  b = lubridate::today() + runif(1e3) * 30,
+  c = 1:1e3,
+  d = runif(1e3),
+  e = sample(letters, 1e3, replace = TRUE)
+)
+
+# The defauly printing method can be circumvented with print()
+nycflights13::flights %>% 
+  print(n = 10, width = Inf)
+
+# RStudio's built-in data viewer can also be used to get a scrollable view
+nycflights13::flights %>%
+  View()
+
+# Subsetting can be done using $ or [[]]
+tb_10_5 <- tibble(
+  x = runif(5),
+  y = rnorm(5)
+)
+
+# Extract by name
+tb_10_5$x
+tb_10_5 %>% .$x
+
+# Extract by position
+tb_10_5[[1]]
+tb_10_5 %>% .[["x"]]
