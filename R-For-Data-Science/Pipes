@@ -1,0 +1,93 @@
+# R for Data Science
+# 3/24/23
+# References material from: https://r4ds.had.co.nz/pipes.html
+
+# Pipes come from the magrittr package (part of tidyverse but can load directly)
+library(magrittr)
+library(pryr)
+
+# Use the story of bunny Foo Foo to explore different possible code structures
+foo_foo <- little_bunny()
+
+# Approach One: Save each intermediate step as a new object:
+foo_foo_1 <- hop(foo_foo, through = forest)
+foo_foo_2 <- scoop(foo_foo_1, up = field_mice)
+foo_foo_3 <- bop(foo_foo_2, on = head)
+
+# This method has many issues but memory is not one of them:
+diamonds <- ggplot2::diamonds
+diamonds2 <- diamonds %>% 
+  dplyr::mutate(price_per_carat = price / carat)
+pryr::object_size(diamonds) # 3.46 MB
+pryr::object_size(diamonds2) # 3.89 MB
+pryr::object_size(diamonds, diamonds2) # 3.89 MB
+
+# diamonds and diamonds2 have 10 columns in common so data is not duplicated.
+# Variables will only get copied if you save one of them.
+diamonds$carat[1] <- NA
+pryr::object_size(diamonds) # 3.46 MB
+pryr::object_size(diamonds2) # 3.89 MB
+pryr::object_size(diamonds, diamonds2) # 4.32 MB
+
+# Approach Two: Overwrite the original object each line:
+foo_foo <- hop(foo_foo, through = forest)
+foo_foo <- scoop(foo_foo, up = field_mice)
+foo_foo <- bop(foo_foo, on = head)
+
+# Approach Three: Function composition, string together function calls:
+bop(
+  scoop(
+    hop(foo_foo, through = forest),
+    up = field_mice
+  ), 
+  on = head
+)
+
+# Approach Four: Use the pipe
+foo_foo %>%
+  hop(through = forest) %>%
+  scoop(up = field_mice) %>%
+  bop(on = head)
+
+# Behind the scenes magrittr treats the approach something like this:
+my_pipe <- function(.) {
+  . <- hop(., through = forest)
+  . <- scoop(., up = field_mice)
+  bop(., on = head)
+}
+my_pipe(foo_foo)
+
+# The pipe will not work for two classes of functions.
+# 1. Functions that use the current environment:
+assign("x", 10)
+x # 10
+"x" %>% assign(100)
+x # 10
+# To use assign() with the pipe you must be specific about the environment.
+env <- environment()
+"x" %>% assign(100, envir = env)
+x # 100
+
+# 2. Functions that use lazy evaluation. One place this can be a problem is 
+# tryCatch()
+tryCatch(stop("!"), error = function(e) "An error") # "An error"
+stop("!") %>% 
+  tryCatch(error = function(e) "An error") # "An error"
+
+# Other useful tools from magrittr
+# "Tee" pipe %T>% works like %>% except it returns the left-hand side
+# Normal pipe
+rnorm(100) %>%
+  matrix(ncol = 2) %>%
+  plot() %>%
+  str() # Null
+
+# "Tee" pipe
+rnorm(100) %>%
+  matrix(ncol = 2) %T>%
+  plot() %>%
+  str() # num [1:50, 1:2] -0.387 -0.785 -1.057 -0.796 -1.756 ...
+
+# %$% "explodes" out variables in a data frame so you can refer to them directly
+mtcars %$%
+  cor(disp, mpg) # [1] -0.8475514
