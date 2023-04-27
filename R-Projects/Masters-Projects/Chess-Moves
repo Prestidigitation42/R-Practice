@@ -1,0 +1,240 @@
+---
+title: "Data Project - Turns in Chess"
+author: "Neil Strugnell"
+date: "April 21, 2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+#### Chess Turns
+
+Analysis of 20,000 chess games on LiChess
+
+```{r setup, echo=FALSE}
+chess <- read.csv("chess.csv")
+head(chess, 5)
+# Create a histogram showing the distribution of turns in these games
+hist(chess$turns, main="Figure 1: Turns in Chess", xlab="Turns")
+```
+
+Combine information to find variables of interest
+
+```{r, echo=FALSE}
+# Add avg_rating column 
+chess$avg_rating = (chess$white_rating + chess$black_rating) / 2
+# Add rating_diff column
+chess$rating_diff = abs(chess$white_rating - chess$black_rating)
+# Create plots showing the relationship between rating and turns
+ggplot(chess, aes(avg_rating, turns)) + 
+  ggtitle("Average Rating vs. Turns") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab('Average Rating') + 
+  ylab('Turns') +
+  geom_point(alpha=0.05, color='blue')
+ggplot(chess, aes(rating_diff, turns)) + 
+  ggtitle("Rating Difference vs. Turns") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab('Rating Difference') + 
+  ylab('Turns') +
+  geom_point(alpha=0.05, color='purple')
+# Take a look at the updated dateframe
+head(chess, 5)
+```
+
+```{r, echo=FALSE}
+# Split increment_code column into time in minutes and increment in seconds
+chess <- chess %>%
+  separate(increment_code, into=c("time_min", "increment"))
+# Change new columns time_min and increment to numeric type
+chess$time_min <- as.numeric(as.character(chess$time_min))
+chess$increment <- as.numeric(as.character(chess$increment))
+# Find the number of different time formats played in minutes
+time_controls <- unique(chess$time_min)
+length(time_controls)
+# Add time format column to chess
+chess$format <- with(chess, ifelse(time_min <= 2, 'bullet',
+                              ifelse(time_min < 10, 'blitz',
+                              ifelse(time_min < 30, 'rapid', 'classical'))))
+# Add outcome column
+chess$outcome <- with(chess, ifelse(victory_status == 'draw', 'draw', 'decisive'))
+```
+
+```{r, echo=FALSE}
+# Take a look at the distribution of games based on time format
+par(mfrow=c(1,2))
+hist(chess$time_min, main="All Games", xlab='Time (Min)')
+hist(chess$time_min[chess$time_min <= 60], main="Games <= 60 Minutes", xlab='Time (Min)')
+
+# Take a look at the distribution of games based on increment
+par(mfrow=c(1,2))
+hist(chess$increment, main="All Games", xlab='Increment (Sec)')
+hist(chess$increment[chess$increment <= 60], main="Increment <= 60", xlab='Increment (Sec)')
+# Create a boxplot of turns based on the game's outcome
+boxplot(turns~outcome, chess, main="Figure 4: Distribution of Turns by Outcome", xlab="Game Result", ylab="Turns")
+
+# Drop unneeded columns from chess
+chess2 <- chess[c('increment', 'time_min', 'outcome', 'rated', 'avg_rating', 'rating_diff', 'turns')]
+# Updated rated column to 0 or 1 values for FALSE/TRUE
+chess2$rated <- with(chess2, ifelse(rated == 1, 1, 0))
+# Update outcome column to 0 for draw or 1 for decisive
+chess2$outcome <- with(chess2, ifelse(outcome == 'draw', 0, 1))
+# Drop outlying 350 turn game
+chess2 <- chess2[chess2$turns < 300,]
+# Find summary statistics for the  chess2 dataframe
+# increment
+summarize(chess2, increment_mean=mean(increment), increment_median=median(increment), increment_var=var(increment), increment_std=sd(increment), increment_range=range(increment))
+# time_min
+summarize(chess2, time_min_mean=mean(time_min), time_min_median=median(time_min), time_min_var=var(time_min), time_min_std=sd(time_min), time_min_range=range(time_min))
+# outcome
+summarize(chess2, outcome_mean=mean(outcome), outcome_median=median(outcome), outcome_var=var(outcome), outcome_std=sd(outcome), outcome_range=range(outcome))
+# rated
+summarize(chess2, rated_mean=mean(rated), rated_median=median(rated), rated_var=var(rated), rated_std=sd(rated), rated_range=range(rated))
+# avg_rating
+summarize(chess2, avg_rating_mean=mean(avg_rating), avg_rating_median=median(avg_rating), avg_rating_var=var(avg_rating), avg_rating_std=sd(avg_rating), avg_rating_range=range(avg_rating))
+# rating_diff
+summarize(chess2, rating_diff_mean=mean(rating_diff), rating_diff_median=median(rating_diff), rating_diff_var=var(rating_diff), rating_diff_std=sd(rating_diff), rating_diff_range=range(rating_diff))
+# Copy resulting data into Excel [DONE]
+# clipr::write_clip(chess2[["increment"]])
+# clipr::write_clip(chess2[["time_min"]])
+# clipr::write_clip(chess2[["outcome"]])
+# clipr::write_clip(chess2[["rated"]])
+# clipr::write_clip(chess2[["avg_rating"]])
+# clipr::write_clip(chess2[["rating_diff"]])
+# clipr::write_clip(chess2[["turns"]])
+```
+
+#### Analysis
+
+Equations:
+
+$y = \hat\beta_{0} + \hat\beta_{1} x_{1}$
+
+$y = \hat\beta_{0} + \hat\beta_{1} x_{1} + \hat\beta_{2} x_{2} + \hat\beta_{3} x_{3} + \hat\beta_{4} x_{4} + \hat\beta_{5} x_{5} + \hat\beta_{6} x_{6}$
+
+Model 1: Turns \~ Increment
+
+```{r, echo=FALSE}
+# Run the linear regression and look at results
+fit1 <- lm(turns ~ increment, chess2)
+summary(fit1)
+plot(fit1)
+# Run ANOVA analysis on model 1
+fit1_anova <- aov(turns ~ increment, chess2)
+summary(fit1_anova)
+# Use confint to find the confidence interval of the prediction
+confint(fit1)
+# Create a graph of the data and fitted line
+plot(chess2$increment, chess2$turns, main = "Model 1: Increment vs. Turns", xlab = "Increment", ylab = "Turns")
+# Add least squares regression line
+abline(reg = fit1, col='blue')
+# Copy results to move into Excel [DONE]
+# clipr::write_clip(fit1[["fitted.values"]])
+# clipr::write_clip(fit1[["residuals"]])
+```
+
+Model 2: Turns \~ Increment, Format
+
+```{r, echo=FALSE}
+# Run the linear regression and look at results
+fit2 <- lm(turns ~ increment + time_min, chess2)
+summary(fit2)
+plot(fit2)
+# Run ANOVA analysis on model 1
+fit2_anova <- aov(turns ~ increment + time_min, chess2)
+summary(fit2_anova)
+# Use confint to find the confidence interval of the prediction
+confint(fit2)
+# Copy results to move into Excel [DONE]
+# clipr::write_clip(fit2[["fitted.values"]])
+# clipr::write_clip(fit2[["residuals"]])
+```
+
+Model 3: Turns \~ Increment, Format, Outcome
+
+```{r, echo=FALSE}
+# Run the linear regression and look at results
+fit3 <- lm(turns ~ increment + time_min + outcome, chess2)
+summary(fit3)
+plot(fit3)
+# Run ANOVA analysis on model 1
+fit3_anova <- aov(turns ~ increment + time_min + outcome, chess2)
+summary(fit3_anova)
+# Use confint to find the confidence interval of the prediction
+confint(fit3)
+# Copy results to move into Excel [DONE]
+# clipr::write_clip(fit3[["fitted.values"]])
+# clipr::write_clip(fit3[["residuals"]])
+```
+
+Model 4: Turns \~ Increment, Format, Outcome, Rated
+
+```{r, echo=FALSE}
+# Run the linear regression and look at results
+fit4 <- lm(turns ~ increment + time_min + outcome + rated, chess2)
+summary(fit4)
+plot(fit4)
+# Run ANOVA analysis on model 1
+fit4_anova <- aov(turns ~ increment + time_min + outcome + rated, chess2)
+summary(fit4_anova)
+# Use confint to find the confidence interval of the prediction
+confint(fit4)
+# Copy results to move into Excel [DONE]
+# clipr::write_clip(fit4[["fitted.values"]])
+# clipr::write_clip(fit4[["residuals"]])
+```
+
+Model 5: Turns \~ Increment, Format, Outcome, Rated, Average Rating
+
+```{r, echo=FALSE}
+# Run the linear regression and look at results
+fit5 <- lm(turns ~ increment + time_min + outcome + rated + avg_rating, chess2)
+summary(fit5)
+plot(fit5)
+# Run ANOVA analysis on model 1
+fit5_anova <- aov(turns ~ increment + time_min + outcome + rated + avg_rating, chess2)
+summary(fit5_anova)
+# Use confint to find the confidence interval of the prediction
+confint(fit5)
+# Copy results to move into Excel [DONE]
+# clipr::write_clip(fit5[["fitted.values"]])
+# clipr::write_clip(fit5[["residuals"]])
+```
+
+Model 6: Turns \~ Increment, Format, Outcome, Rated, Average Rating, Rating Difference
+
+```{r, echo=FALSE}
+# Run the linear regression and look at results
+fit6 <- lm(turns ~ increment + time_min + outcome + rated + avg_rating + rating_diff, chess2)
+summary(fit6)
+plot(fit6)
+# Run ANOVA analysis on model 1
+fit6_anova <- aov(turns ~ increment + time_min + outcome + rated + avg_rating + rating_diff, chess2)
+summary(fit6_anova)
+# Use confint to find the confidence interval of the prediction
+confint(fit6)
+# Create a graph of the data and fitted line
+plot(chess2$rating_diff, chess2$turns, main = "Model 6: Rating Difference vs. Turns", xlab = "Rating Difference", ylab = "Turns")
+# Add least squares regression line
+abline(reg = fit6, col='red')
+# Copy results to move into Excel [DONE]
+# clipr::write_clip(fit6[["fitted.values"]])
+# clipr::write_clip(fit6[["residuals"]])
+```
+
+Create a covariance matrix for the variables
+
+```{r, echo=FALSE}
+cov(chess2)
+```
+
+```{r, echo=FALSE}
+
+```
+
+```{r, echo=FALSE}
+
+```
